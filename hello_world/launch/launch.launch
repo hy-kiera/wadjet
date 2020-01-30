@@ -1,0 +1,4 @@
+<launch>
+	<node name="hello_world_sub" pkg="hello_world" type="sub.py" respawn="false" output="screen"/>
+	<node name="hello_world_pub" pkg="hello_world" type="pub.py" respawn="false"/>
+</launch>
