@@ -1,0 +1,3 @@
+<launch>
+	<node name="camera" pkg="jetson" type="video_capture.py" respawn="false"/>
+</launch>
