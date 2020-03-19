@@ -23,7 +23,7 @@ class Camera:
             while not rospy.core.is_shutdown():
                 ret_val, img = cap.read() # img type is numpy.ndarray
 
-                cv2.imshow('demo', img)
+                # cv2.imshow('demo', img)
 
                 # send image to pub node using cvbridge
                 self.pub.publish(self.cvb.cv2_to_imgmsg(img, 'bgr8')) 
