@@ -5,8 +5,8 @@ def _send(socket, send_data):
     json_data = json.JSONEncoder().encode(send_data)
     socket.sendall(json_data.encode())
     
- def _recv(socket):
-    recv_data = socket.recv()
+def _recv(socket):
+    recv_data = socket.recv(4096)
     json_data = json.loads(recv_data.decode())
     return json_data
 
@@ -25,7 +25,8 @@ class Server(object):
     def accept(self):
         if self.client:
             self.client.close()
-            self.client, self.client_addr = self.socket.accept()
+        
+        self.client, self.client_addr = self.socket.accept()
 
         return self
     
