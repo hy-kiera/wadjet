@@ -1,0 +1,3 @@
+<launch>
+	<node name="face_detector" pkg="server" type="face_detection.py" respawn="false" output="screen"/>
+</launch>
