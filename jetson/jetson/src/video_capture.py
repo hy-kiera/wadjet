@@ -32,7 +32,7 @@ class Camera:
 
 if __name__=="__main__":
     cam = Camera()
-    rospy.init_node('camera')
+    rospy.init_node('Camera')
     try:
         cam.read_cam()
         rospy.spin()

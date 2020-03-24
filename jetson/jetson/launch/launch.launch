@@ -1,4 +1,4 @@
 <launch>
-	<node name="camera" pkg="jetson" type="video_capture.py" respawn="false"/>
-	<node name="image_reader" pkg="jetson" type="image_reader.py" respawn="false" output="screen"/>
+	<node name="Camera" pkg="jetson" type="video_capture.py" respawn="false"/>
+	<node name="ImageBus" pkg="jetson" type="image_bus.py" respawn="false" output="screen" />
 </launch>
