@@ -5,18 +5,21 @@ import tensorflow as tf
 import math
 from sklearn.decomposition import PCA
 import os
+import time
 import glob
 import face_detection.src.facenet as facenet
 import face_detection.src.align.detect_face as detect_face
-from jsonsocket import Server
+from json_socket import Server
+import msgpack
 
 BIND_IP = "127.0.0.1"
-BIND_PORT = 9989
+BIND_PORT = 9879 
 
 class FaceDetector:
 
     def __init__(self):
         self.socket = Server(BIND_IP, BIND_PORT)
+        self.socket.accept()
 
     def load_model(self, pb_path, image_size=(160,160)):
         tf.reset_default_graph()
@@ -80,8 +83,9 @@ class FaceDetector:
 
     def check_face(self, frame):
         tf.reset_default_graph()
-
-        single_image, embeddings = self.load_model("./models/20180402-114759.pb")
+        
+        model_path = os.path.dirname(os.path.abspath(__file__)) + "/face_detection/models/20180402-114759.pb"
+        single_image, embeddings = self.load_model(model_path)
 
         sess = tf.Session()
         pnet, rnet, onet = detect_face.create_mtcnn(sess,None)
@@ -167,21 +171,18 @@ class FaceDetector:
 
 if __name__=="__main__":
     fd = FaceDetector()
-    fd.socket.accept()
-
     while True:
-        recv_image = fd.socket.recv()
-        if not recv_image:
-            break
+        recv_data = fd.socket.recv()
+        if not recv_data: # recv_data == None, So break
+            continue 
+        
+        video_cap = msgpack.unpackb(recv_data)
 
-        video_cap = recv_data['video_cap']
-
-        face_detected_image = fd.check_face(video_cap)
-
-        send_image = {}
-        send_image['face_detected_image'] = face_detected_image
+        send_image = video_cap
 
         fd.socket.send(send_image)
+
+        time.sleep(1.0)
 
     fd.socket.close()
 
