@@ -3,6 +3,7 @@ import rospy
 import cv2
 import numpy as np
 import os
+import time
 import subprocess
 import msgpack
 from cv_bridge import CvBridge, CvBridgeError
@@ -28,15 +29,16 @@ class ImageBus:
         except CvBridgeError as e:
             print(e)
        
-        print("START HERE!!\n")
+        print("\nSTART HERE!!\n")
 
-        rospy.sleep(10.0)
         send_data = cv_image.tolist()
 
         self.client.send(send_data)
             
         recv_data = self.client.recv()
         recv_data = msgpack.unpackb(recv_data)
+
+        print("recv_data [p1, p2] : ", recv_data)
         self.rate.sleep()
 
 
@@ -45,6 +47,7 @@ if __name__ == '__main__':
     filename = os.path.dirname(os.path.abspath(__file__)) + "/face_detector.py"
 
     p = subprocess.Popen(["python3", filename])
+    rospy.sleep(15)
     ib = ImageBus()
     try:
         rospy.spin()

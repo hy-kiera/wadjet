@@ -47,6 +47,7 @@ class Server(object):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # Error for using port
         self.socket.bind((host, port))
         self.socket.listen(self.backlog)
+        print("\nServer is Ready!!\n")
 
     def __del__(self):
         self.close()
