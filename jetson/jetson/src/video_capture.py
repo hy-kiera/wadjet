@@ -17,7 +17,7 @@ class Camera:
         self.cvb = CvBridge()
 
     def read_cam(self):
-        cap = cv2.VideoCapture("nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)1080, height=(int)720,format=(string)NV12, framerate=(fraction)30/1 ! nvvidconv ! video/x-raw, format=(string)BGRx ! videoconvert !  appsink")
+        cap = cv2.VideoCapture("nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)480,format=(string)NV12, framerate=(fraction)30/1 ! nvvidconv ! video/x-raw, format=(string)BGRx ! videoconvert !  appsink")
         if cap.isOpened():
             # cv2.namedWindow("demo", cv2.WINDOW_AUTOSIZE)
             while not rospy.core.is_shutdown():

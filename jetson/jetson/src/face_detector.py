@@ -1,7 +1,5 @@
 import cv2
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
 import tensorflow as tf
 import math
 from sklearn.decomposition import PCA
@@ -79,21 +77,21 @@ class FaceDetector:
 
         return faces, bounding_boxes
 
-    def check_face(self, frame):
+    def check_face(self):
         tf.compat.v1.reset_default_graph()
-
+        
         model_path = os.path.dirname(os.path.abspath(__file__)) + "/face_detection/models/20180402-114759.pb"
-        single_image, embeddings = self.load_model(model_path)
+        self.single_image, self.embeddings = self.load_model(model_path)
 
-        sess = tf.compat.v1.Session()
-        pnet, rnet, onet = detect_face.create_mtcnn(sess,None)
+        self.sess = tf.compat.v1.Session()
+        self.pnet, self.rnet, self.onet = detect_face.create_mtcnn(self.sess,None)
 
         path_me = glob.glob(os.path.dirname(os.path.abspath(__file__)) + "/face_detection/data/faces/lsh/*")
         embed_me = []
 
         for path in path_me:
             img = self.load_image(path)
-            result = sess.run(embeddings, feed_dict={single_image:img})
+            result = self.sess.run(self.embeddings, feed_dict={self.single_image:img})
             result = result[0]
             embed_me.append(result)
 
@@ -104,7 +102,7 @@ class FaceDetector:
 
         for path in path_other1:
             img = self.load_image(path)
-            result = sess.run(embeddings, feed_dict={single_image:img})
+            result = self.sess.run(self.embeddings, feed_dict={self.single_image:img})
             result = result[0]
             embed_other1.append(result)
 
@@ -116,36 +114,21 @@ class FaceDetector:
 
         for path in path_other2:
             img = self.load_image(path)
-            result = sess.run(embeddings, feed_dict={single_image:img})
+            result = self.sess.run(self.embeddings, feed_dict={self.single_image:img})
             result = result[0]
             embed_other2.append(result)
 
         embed_other2 = np.array(embed_other2)
 
-        all_embeddings = np.concatenate((embed_me, embed_other1, embed_other2), axis=0)
-        pca = PCA(n_components=2)
-        # pca = PCA(n_components=1, svd_solver = 'full')
-        # all_embeddings = np.reshape(all_embeddings, (-1, 1))
-        pca.fit(all_embeddings)
 
-        xy_me = pca.transform(embed_me)
-        xy_other1 = pca.transform(embed_other1)
-        xy_other2 = pca.transform(embed_other2)
-
-        ax = plt.figure()
-
-        sc1 = plt.scatter(xy_me[:,0], xy_me[:,1], color = (1,0,0))
-        sc2 = plt.scatter(xy_other1[:,0], xy_other1[:,1], color=(0,1,0.4))
-        sc3 = plt.scatter(xy_other2[:,0], xy_other2[:,1], color=(0,0,1))
-
-        plt.legend([sc1,sc2,sc3], ["me", "other1", "other2"], loc="upper right")
-
+    def box_face(self, frame):
+        tf.compat.v1.reset_default_graph()
         frame = np.array(frame)
         frame = frame.astype('float32')
         cv_frame = cv2.resize(frame,(400,225))
 
         image_frame = cv_frame.copy()
-        faces, bounding_boxes = self.crop_faces(image_frame, pnet, rnet, onet)
+        faces, bounding_boxes = self.crop_faces(image_frame, self.pnet, self.rnet, self.onet)
         print("faces : ", faces)
         print("\nboxed :", bounding_boxes)
         for box in bounding_boxes:
@@ -153,21 +136,19 @@ class FaceDetector:
             
             p1 = [box[0], box[1]]
             p2 = [box[2], box[3]]
-            result_frame = sess.run(embeddings, feed_dict={single_image:image_frame})
+            result_frame = self.sess.run(self.embeddings, feed_dict={self.single_image:image_frame})
             result_frame = result_frame[0]
 
-            distance_th = 1.0
+            # distance_th = 1.0
 
-            distance1 = self.calc_distance(embed_me[0], result_frame)
-            distance2 = self.calc_distance(embed_me[3], result_frame)
+            # distance1 = self.calc_distance(embed_me[0], result_frame)
+            # distance2 = self.calc_distance(embed_me[3], result_frame)
 
-            avg_distance = (distance1 + distance2) / 2
-            if(avg_distance < distance_th):
-                cv2.rectangle(image_frame, (box[0], box[1]), (box[2], box[3]), color=(0,255,0))
-            else:
-                cv2.rectangle(image_frame, (box[0], box[1]), (box[2], box[3]), color=(0,0,255))
-
-                # return _frame
+            # avg_distance = (distance1 + distance2) / 2
+            # if(avg_distance < distance_th):
+            #     cv2.rectangle(image_frame, (box[0], box[1]), (box[2], box[3]), color=(0,255,0))
+            # else:
+            #     cv2.rectangle(image_frame, (box[0], box[1]), (box[2], box[3]), color=(0,0,255))
 
             p1[0] = p1[0].tolist()
             p1[1] = p1[1].tolist()
@@ -181,6 +162,7 @@ class FaceDetector:
 
 if __name__=="__main__":
     fd = FaceDetector()
+    fd.check_face()
     while True:
         recv_data = fd.socket.recv()
         if not recv_data: # recv_data == None, So break
@@ -188,7 +170,7 @@ if __name__=="__main__":
         
         video_cap = msgpack.unpackb(recv_data)
 
-        send_image = fd.check_face(video_cap)
+        send_image = fd.box_face(video_cap)
 
         fd.socket.send(send_image)
 
