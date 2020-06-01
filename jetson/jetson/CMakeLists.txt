@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(jetson)
 
+set(RPLIDAR_SDK_PATH "./sdk/")
+
+FILE(GLOB RPLIDAR_SDK_SRC
+  "${RPLIDAR_SDK_PATH}/src/arch/linux/*.cpp"
+  "${RPLIDAR_SDK_PATH}/src/hal/*.cpp"
+  "${RPLIDAR_SDK_PATH}/src/*.cpp"
+  )
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -10,6 +18,7 @@ project(jetson)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  roscpp
 )
 
 ## System dependencies are found with CMake's conventions
@@ -115,8 +124,10 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+  ${RPLIDAR_SDK_PATH}/include
+  ${RPLIDAR_SDK_PATH}/src
 )
 
 ## Declare a C++ library
@@ -203,3 +214,9 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(rplidar_node src/node.cpp ${RPLIDAR_SDK_SRC})
+target_link_libraries(rplidar_node ${catkin_LIBRARIES})
+
+# add_executable(rplidar_node src/client.cpp)
+# target_link_libraries(rplidarNodeClient ${catkin_LIBRARIES})
