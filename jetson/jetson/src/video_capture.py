@@ -17,13 +17,11 @@ class Camera:
         self.cvb = CvBridge()
 
     def read_cam(self):
-        cap = cv2.VideoCapture("nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,format=(string)NV12, framerate=(fraction)30/1 ! nvvidconv ! video/x-raw, format=(string)BGRx ! videoconvert !  appsink")
+        cap = cv2.VideoCapture("nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)480,format=(string)NV12, framerate=(fraction)30/1 ! nvvidconv ! video/x-raw, format=(string)BGRx ! videoconvert !  appsink")
         if cap.isOpened():
             # cv2.namedWindow("demo", cv2.WINDOW_AUTOSIZE)
             while not rospy.core.is_shutdown():
                 ret_val, img = cap.read() # img type is numpy.ndarray
-
-                cv2.imshow('demo', img)
 
                 # send image to pub node using cvbridge
                 self.pub.publish(self.cvb.cv2_to_imgmsg(img, 'bgr8')) 
@@ -32,14 +30,13 @@ class Camera:
 
 if __name__=="__main__":
     cam = Camera()
-    rospy.init_node('camera')
+    rospy.init_node('Camera')
     try:
         cam.read_cam()
         rospy.spin()
-        outcome = 'Test Completed'
+        outcome = 'Completed'
     except rospy.ROSInterruptException:
         print("Exception")
         pass
     rospy.core.signal_shutdown(outcome)
-
 
