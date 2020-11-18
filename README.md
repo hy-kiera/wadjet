@@ -1,4 +1,4 @@
-# wadjet
+# wadjet: Autonomous Flight Drone
 A capston project in Hanyang Univ.  
 Team : By Python  
 Team Member  
@@ -55,3 +55,8 @@ Finally we control a drone by /posctl_node.
 ![3](https://user-images.githubusercontent.com/17093142/83627771-6d148d00-a5d2-11ea-8bbb-642f45ff0b90.png)
 
 This package is from that RPLidar_Hector_SLAM link too.
+
+## TODO
+- [ ] Decide direction to move using received data from FaceNet.
+- [ ] Analize the map by Hector SLAM.
+- [ ] Add more cameras to increase viewpoint.
